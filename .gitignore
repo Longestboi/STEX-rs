@@ -1,0 +1,7 @@
+# VSCode stuff
+**/vscode
+
+# Rust specifics
+**/target
+Cargo.lock
+
