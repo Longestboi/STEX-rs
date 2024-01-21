@@ -19,7 +19,5 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{:?}", teste);
 
-    // println!("{}", _temp?);
-
     Ok(())
 }

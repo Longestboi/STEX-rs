@@ -1,4 +1,7 @@
 
+// [TemplateHeader]
+// language = "single-line"
+// output_paths = ["test", ]
 
 Shader "Custom/CVD"
 {

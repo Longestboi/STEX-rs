@@ -1,7 +1,7 @@
 mod error;
 mod types;
 
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::{error::Error, path::Path, str::FromStr};
 use toml::{Serializer as TomlSerializer, Table};
@@ -86,7 +86,7 @@ impl FromStr for TemplateHeader {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let multiline_toml_pat = Regex::new("\\/\\*([\\s\\S]*?)\\*\\/")?;
-        let multisingle_toml_pat = Regex::new("^(\\/\\/.*(?:\n\\/\\/.*)*)")?;
+        let multisingle_toml_pat = RegexBuilder::new("^(\\/\\/.*(?:\n\\/\\/.*)*)").multi_line(true).build()?;
 
         let mut toml: Option<String> = None;
 
@@ -99,6 +99,7 @@ impl FromStr for TemplateHeader {
                 .collect::<Vec<&str>>()
                 .join("\n")
             );
+
         } else if let Some(multi_line_regex_capture) = multiline_toml_pat.captures(s) {
             let (_, [raw_toml]) = multi_line_regex_capture.extract();
             
