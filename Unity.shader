@@ -1,7 +1,6 @@
-
 // [TemplateHeader]
-// language = "single-line"
-// output_paths = ["test", ]
+// shader_file = "CVD/core.hlsl"
+// output_path = ["test"]
 
 Shader "Custom/CVD"
 {

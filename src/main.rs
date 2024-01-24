@@ -1,23 +1,27 @@
 use std::error::Error;
 
 mod replace;
-mod template_header;
+mod template;
 
-use replace::Replacer;
-use template_header::TemplateHeader;
+use template::Template;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    let path = std::env::current_dir()?.as_path().join("Unity.shader");
+fn main() {
+    match testing() {
+        Ok(_) => return,
+        Err(e) => {
+            println!("{}", e);
+        },
+    }
+}
 
-    let teste = TemplateHeader::from_path(&path);//(&testing);
+fn testing() -> Result<(), Box<dyn Error>> {
+    let teste = Template::from_path("./Unity.shader")?;
 
-    let _temp = Replacer::replace_token_in_file(
-        path,
-        "{{% CoreShader %}}",
-        "fn testing() { return; }",
-    );
+    // toml::to_string_pretty::<TemplateHeader>(&teste.template_header);
 
-    println!("{:?}", teste);
+    println!("{}", toml::to_string_pretty::<Template>(&teste)?);
 
+    println!("{:?}", teste.template_header);
+    
     Ok(())
 }
