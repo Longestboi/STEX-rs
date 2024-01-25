@@ -1,6 +1,6 @@
 pub mod template_header;
 
-use std::{error::Error, path::Path};
+use std::{error::Error, fmt::Display, path::Path};
 
 use serde::Serialize;
 use template_header::TemplateHeader;
@@ -13,8 +13,34 @@ pub struct Template {
     pub template_text: String,
 }
 
+impl Display for Template {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let template_header: String = self
+            .template_header
+            .to_string()
+            .split("\n")
+            .map(|e| "\t".to_string() + e)
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        write!(f, "Template Header:\n")?;
+        write!(f, "{template_header}\n\n")?;
+
+        let template_text = self
+            .template_text
+            .split("\n")
+            .map(|e| "\t".to_string() + e)
+            .collect::<Vec<String>>()
+            .join("\n");
+
+        write!(f, "Template Text:\n")?;
+        write!(f, "{template_text}")?;
+
+        Ok(())
+    }
+}
+
 impl Template {
-    
     pub fn from_path(file_path: impl AsRef<Path>) -> Result<Self, Box<dyn Error>> {
         let mut template = Template::default();
 
@@ -27,11 +53,11 @@ impl Template {
         match text {
             template_header::RawTemplateHeader::SingleLine(single_cap) => {
                 let full_match = single_cap.extract::<1>().0;
-                template.template_text = file_text.replace(&full_match, "");
+                template.template_text = file_text.replace(&full_match, "").trim_start().to_string();
             },
             template_header::RawTemplateHeader::MultiLine(multi_cap) => {
                 let full_match = multi_cap.extract::<1>().0;
-                template.template_text = file_text.replace(&full_match, "");
+                template.template_text = file_text.replace(&full_match, "").trim_start().to_string();
             },
         }
 

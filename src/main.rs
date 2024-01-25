@@ -17,11 +17,7 @@ fn main() {
 fn testing() -> Result<(), Box<dyn Error>> {
     let teste = Template::from_path("./Unity.shader")?;
 
-    // toml::to_string_pretty::<TemplateHeader>(&teste.template_header);
-
-    println!("{}", toml::to_string_pretty::<Template>(&teste)?);
-
-    println!("{:?}", teste.template_header);
+    println!("{}", teste);
     
     Ok(())
 }

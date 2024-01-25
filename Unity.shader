@@ -1,6 +1,6 @@
 // [TemplateHeader]
 // shader_file = "CVD/core.hlsl"
-// output_path = ["test"]
+// output_path = ["test", "testing"]
 
 Shader "Custom/CVD"
 {

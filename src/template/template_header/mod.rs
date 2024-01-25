@@ -3,7 +3,7 @@ pub mod types;
 
 use regex::RegexBuilder;
 use serde::{Deserialize, Serialize};
-use std::{error::Error, path::Path, str::FromStr};
+use std::{error::Error, fmt::Display, path::Path, str::FromStr};
 use toml::{Serializer as TomlSerializer, Table};
 
 use error::Errors;
@@ -19,6 +19,7 @@ pub enum RawTemplateHeader<'a> {
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(default)]
 pub struct TemplateHeader {
     pub shader_file: TemplateCorefile,
     pub output_path: StringOrSequence,
@@ -99,5 +100,27 @@ impl FromStr for TemplateHeader {
             Ok(e) => return Ok(e),
             Err(e) => return Err(Box::new(e)),
         }
+    }
+}
+
+impl Display for TemplateHeader {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+
+        let shader_file_path = match self.shader_file.0.clone() {
+            Some(e) => e,
+            None => "None".into(),
+        };
+
+        write!(f, "shader_file path: {}\n", shader_file_path)?;
+
+        let output_paths = match self.output_path.clone() {
+            types::StringOrSequence::String(string) => string,
+            types::StringOrSequence::Sequence(e) => e.join(", "),
+            types::StringOrSequence::None => "None".into(),
+        };
+
+        write!(f, "output_paths: {}", output_paths)?;
+
+        Ok(())
     }
 }
