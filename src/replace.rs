@@ -1,42 +1,71 @@
-use std::{path::Path, error::Error};
+use regex::Regex;
+use std::path::Path;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum ReplacerTokenError {
-    #[error("Data string could not be ")]
+pub enum Error {
+    #[error("Unknown template error")]
     DataError,
-    #[error("Could not find fixed value, unlikely to be a GBA game")]
+    #[error("Could not find token {0}")]
+    TokenNotFound(String),
+    #[error("Unknown token error")]
     TokenError,
-    #[error("Unknown Error")]
+    #[error("Unknown core error")]
     ReplacerError,
 }
 
 pub struct Replacer;
 
 impl Replacer {
-    pub fn replace_token_in_file(file_path: impl AsRef<Path>, token: impl TryInto<String>, replacer: impl TryInto<String>)  -> Result<String, Box<dyn Error>> {
+    pub fn replace_token_in_file(
+        file_path: impl AsRef<Path>,
+        token: impl TryInto<String>,
+        replacer: impl TryInto<String>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let file_string = std::fs::read_to_string(file_path)?;
 
         Self::replace_token_in_string(file_string, token, replacer)
     }
 
-    pub fn replace_token_in_string(data: impl TryInto<String>, token: impl TryInto<String>, replacer: impl TryInto<String>) -> Result<String, Box<dyn Error>> {
-
+    pub fn replace_token_in_string(
+        data: impl TryInto<String>,
+        token: impl TryInto<String>,
+        replacer: impl TryInto<String>,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         let sdata = match data.try_into() as Result<String, _> {
             Ok(data) => data,
-            Err(_) => return Err(Box::new(ReplacerTokenError::DataError)),
+            Err(_) => return Err(Box::new(Error::DataError)),
         };
 
         let stok = match token.try_into() as Result<String, _> {
             Ok(token) => token,
-            Err(_) => return Err(Box::new(ReplacerTokenError::TokenError)),
+            Err(_) => return Err(Box::new(Error::TokenError)),
         };
 
         let srepl = match replacer.try_into() as Result<String, _> {
             Ok(replacement) => replacement,
-            Err(_) => return Err(Box::new(ReplacerTokenError::ReplacerError)),
+            Err(_) => return Err(Box::new(Error::ReplacerError)),
         };
 
-        Ok(sdata.replace(&format!("// {}", &stok), &srepl))
-    } 
+        let regex_pat = format!("(.*)//.*{}.*", stok);
+        let re = Regex::new(&regex_pat)?;
+
+        if let Some(testing) = re.captures(&sdata) {
+            let before_tag = match testing.get(1) {
+                Some(e) => e.as_str(),
+                None => return Err(Box::new(Error::TokenError)),
+            };
+
+            let replacement_mod = srepl
+                .split("\n")
+                .map(|f| format!("{before_tag}{f}"))
+                .collect::<Vec<String>>()
+                .join("\n");
+
+            // println!("{}", test.as_str().to_string());
+            Ok(sdata.replace(&format!("{before_tag}// {stok}"), &replacement_mod))
+        } else {
+            return Err(Box::new(Error::TokenNotFound(stok)));
+        }
+    }
 }

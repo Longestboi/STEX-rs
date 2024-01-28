@@ -46,39 +46,34 @@ impl TemplateHeader {
             return Ok(RawTemplateHeader::MultiLine(multi_line_regex_capture));
         }
 
-        Err(Box::new(Errors::Message(
-            "Could not find Template Header".into(),
-        )))
+        Err(Box::new(Errors::TemplateHeaderNotPresent))
     }
 
     pub fn extract_toml_from_raw_header(s: &str) -> Result<String, Box<dyn Error>> {
-        if let Ok(raw_header) = Self::get_raw_template_header(s) {
-            match raw_header {
-                RawTemplateHeader::SingleLine(raw_single) => {
-                    let (_, [raw_toml]) = raw_single.extract();
+        let raw_header = Self::get_raw_template_header(s)?;
 
-                    return Ok(raw_toml
-                        .split("\n")
-                        .map(|e| e[2..].trim())
-                        .collect::<Vec<&str>>()
-                        .join("\n"));
-                }
-                RawTemplateHeader::MultiLine(raw_multi) => {
-                    let (_, [raw_toml]) = raw_multi.extract();
+        match raw_header {
+            RawTemplateHeader::SingleLine(raw_single) => {
+                let (_, [raw_toml]) = raw_single.extract();
 
-                    return Ok(raw_toml
-                        .trim()
-                        .split("\n")
-                        .map(|e| e.trim())
-                        .collect::<Vec<&str>>()
-                        .join("\n"));
-                }
+                return Ok(raw_toml
+                    .split("\n")
+                    .map(|e| e[2..].trim())
+                    .collect::<Vec<&str>>()
+                    .join("\n"));
+            }
+            RawTemplateHeader::MultiLine(raw_multi) => {
+                let (_, [raw_toml]) = raw_multi.extract();
+
+                return Ok(raw_toml
+                    .trim()
+                    .split("\n")
+                    .map(|e| e.trim())
+                    .collect::<Vec<&str>>()
+                    .join("\n"));
             }
         }
 
-        return Err(Box::new(Errors::Message(
-            "Could not find Template Header".into(),
-        )));
     }
 }
 

@@ -22,7 +22,7 @@ Shader "Custom/CVD"
 
             #include "UnityCG.cginc"
             
-            // {{% CoreShader %}}
+            // <% CoreShader %>
 
             sampler2D _MainTex;
             float _Blend;
