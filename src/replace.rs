@@ -17,16 +17,6 @@ pub enum Error {
 pub struct Replacer;
 
 impl Replacer {
-    pub fn replace_token_in_file(
-        file_path: impl AsRef<Path>,
-        token: impl TryInto<String>,
-        replacer: impl TryInto<String>,
-    ) -> Result<String, Box<dyn std::error::Error>> {
-        let file_string = std::fs::read_to_string(file_path)?;
-
-        Self::replace_token_in_string(file_string, token, replacer)
-    }
-
     pub fn replace_token_in_string(
         data: impl TryInto<String>,
         token: impl TryInto<String>,
