@@ -1,5 +1,7 @@
-use std::path::Path;
+use std::{fs::File, io::Write, path::Path};
 use crate::{replace::Replacer, template::Template};
+use path_dedot::*;
+
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
@@ -19,6 +21,8 @@ pub enum Error {
     CoreFileNotSpecifiedTemplate,
     #[error("Core file '{0}' could not be found")]
     CoreFileNotFound(String),
+    #[error("Unknown Error")]
+    UnknownError,
 }
 
 pub fn core(args: &super::Args) -> Result<(), Box<dyn std::error::Error>> {
@@ -58,6 +62,8 @@ pub fn core(args: &super::Args) -> Result<(), Box<dyn std::error::Error>> {
         },
     };
 
+    let full_template_path = std::fs::canonicalize(template_file_path)?;
+
     // Use specified output, if specified
     let output_paths = match args.output.as_ref() {
         Some(e) => vec![e.clone()],
@@ -65,10 +71,10 @@ pub fn core(args: &super::Args) -> Result<(), Box<dyn std::error::Error>> {
             use crate::template::template_header::types as THTypes;
             match &template.template_header.output_path {
                 THTypes::StringOrSequence::String(e) => {
-                    vec![e.clone()]
+                    vec![format!("{}/{}", full_template_path.to_str().unwrap(), e.clone())]
                 },
                 THTypes::StringOrSequence::Sequence(seq) => {
-                    seq.clone()
+                    seq.clone().iter().map(| f | format!("{}/{}", full_template_path.to_str().unwrap(), f)).collect::<Vec<String>>()
                 },
                 THTypes::StringOrSequence::None => {
                     return Err(Box::new(Error::OutputNotSpecifiedTemplate));
@@ -118,10 +124,31 @@ pub fn core(args: &super::Args) -> Result<(), Box<dyn std::error::Error>> {
         },
     };
 
-    println!("Template Outputs: {:?}, Path to Core: {}", output_paths, core_path);
-    println!("{}", replaced);
-    // Use override
+    // Do output stuff here
+    for i in output_paths {
 
+        let parsed_output_path = Path::new(&i).parse_dot()?;
+        
+        let template_parent = match Path::new(&template_file).file_name() {
+            Some(e) => {
+                match e.to_str() {
+                    Some(e) => e,
+                    None => return Err(Box::new(Error::UnknownError)),
+                }
+            },
+            None => return Err(Box::new(Error::UnknownError)),
+        };
+        
+        let poutput = match parsed_output_path.to_str() {
+            Some(e) => e,
+            None => return Err(Box::new(Error::UnknownError)),
+        };
+
+        let mut file = File::create(&parsed_output_path)?;
+        
+        file.write_all(replaced.as_bytes())?;
+        println!("Output template '{}' to {}", template_parent, poutput);
+    }
 
     Ok(())
 }
