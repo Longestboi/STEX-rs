@@ -1,25 +1,9 @@
-# Shader Template Exporter
 ## Project Description
-***
 The Shader Template Exporter is a collection of shader script snippets to be inserted into templates dynamically and exported to any given output directory. The exporter offers a Color Vision Deficiency Accessibility Shader as an example generic core and template.  
 
 The shader template exporter is designed to make it easier to use basic shaders in most game engines.
-## Project Objectives
-***
-#### Objective 1:
-Build an exporter script in Python that exports data to multiple scripting languages.
-##### Activities:
-1. Write base language exporter class by implementing universal things
-2. Derive language-specific child classes for using specific variable types (float3x3, float4, etc...)
-3. Export the script based on user input from the command line
-#### Objective 2:
-Find the proper colorspace conversion and color-shifting algorithms and matrices.
-##### Activities:
-1. Read color vision deficiency research papers to determine the best color-shifting matrices for each CVD type.
-2. Test those matrices in Unity, and then all supported engines.
-#### Objective 3:
-Implement basic interfaces for game engines with the pre-generated scripts.
-##### Activities:
+
+## Activities:
 1. Write a Unity interface with the imported HLSL shader code using the shader and material file types
 2. Write an Unreal Engine interface with the imported HLSL shader code
 
