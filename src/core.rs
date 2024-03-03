@@ -13,8 +13,6 @@ pub enum Error {
     OutputNotSpecified,
     #[error("Output not specified in template")]
     OutputNotSpecifiedTemplate,
-    // #[error("Output file already exists")]
-    // OutputFileExists,
     #[error("Core file not specified")]
     CoreFileNotSpecified,
     #[error("Core file not specified in template")]
