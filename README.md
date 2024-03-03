@@ -8,7 +8,6 @@ The shader template exporter is designed to make it easier to use basic shaders 
 2. Write an Unreal Engine interface with the imported HLSL shader code
 
 ## Implementation of the Shader Exporting
-***
 Shader exporting is similar to how static website generators work, take a template and operate on it depending on the context. By having a tag in the template file – something like `// <% core_here %>` – the exporter can place the core into the template where the user specifies.
 
 The shader exporter will have a singular 
